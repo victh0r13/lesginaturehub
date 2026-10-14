@@ -1,6 +1,6 @@
 export const site = {
   name: "Le Signature Hub",
-  url: "https://lesignaturehub.com.br",
+  url: "https://lesignature.com.br",
   title: "Le Signature Hub | Consultórios por hora em Águas Claras",
   description:
     "Consultórios prontos para profissionais da saúde em Águas Claras. Locação por hora, pacotes e planos fixos mensais no Le Quartier, em frente ao metrô.",
