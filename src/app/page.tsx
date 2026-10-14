@@ -1,6 +1,7 @@
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
-import { ArrowIcon, InstagramIcon, MapPinIcon, WhatsAppIcon } from "@/components/icons";
+import { ArrowIcon, ExpandIcon, InstagramIcon, MapPinIcon, WhatsAppIcon } from "@/components/icons";
+import { type Gallery, Lightbox } from "@/components/Lightbox";
 import { RevealObserver } from "@/components/RevealObserver";
 import { estetica, fullAddress, links, mapEmbed, multidisciplinar, type Plan, site } from "@/lib/site";
 import consultorio from "../../public/images/consultorio.jpg";
@@ -12,6 +13,31 @@ import multidisciplinar2 from "../../public/images/multidisciplinar-2.jpg";
 
 const FULL_WIDTH = "(min-width: 1152px) 504px, (min-width: 1024px) 43vw, (min-width: 640px) 528px, calc(100vw - 48px)";
 const HALF_WIDTH = "(min-width: 1152px) 246px, (min-width: 1024px) 21vw, (min-width: 640px) 258px, calc(50vw - 30px)";
+
+type RoomPhoto = { src: StaticImageData; alt: string };
+
+const esteticaPhotos: RoomPhoto[] = [
+  { src: estetica1, alt: "Consultório de estética com maca, mesa de apoio e vista para a cidade" },
+  { src: estetica2, alt: "Maca do consultório de estética com bancada e pia" },
+  { src: estetica3, alt: "Vista ampla do consultório de estética iluminado" },
+];
+
+const multidisciplinarPhotos: RoomPhoto[] = [
+  { src: multidisciplinar1, alt: "Consultório multidisciplinar com mesa, cadeiras e bancada espelhada" },
+  { src: multidisciplinar2, alt: "Mesa de atendimento do consultório multidisciplinar" },
+];
+
+function toGallery(title: string, photos: RoomPhoto[]): Gallery {
+  return {
+    title,
+    photos: photos.map(({ src, alt }) => ({ src: src.src, width: src.width, height: src.height, alt })),
+  };
+}
+
+const galleries = {
+  estetica: toGallery("Estética", esteticaPhotos),
+  multidisciplinar: toGallery("Multidisciplinar", multidisciplinarPhotos),
+};
 
 const navItems = [
   { href: "#estetica", label: "Estética" },
@@ -32,6 +58,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingWhatsApp />
+      <Lightbox galleries={galleries} />
     </>
   );
 }
@@ -134,25 +161,10 @@ function Estetica() {
       className="mx-auto max-w-xl px-6 py-16 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-16 lg:px-10 lg:py-24"
     >
       <div data-reveal>
-        <Photo
-          src={estetica1}
-          alt="Consultório de estética com maca, mesa de apoio e vista para a cidade"
-          sizes={FULL_WIDTH}
-          className="mb-3 aspect-[4/5]"
-        />
+        <Photo gallery="estetica" photos={esteticaPhotos} index={0} sizes={FULL_WIDTH} className="mb-3 aspect-[4/5]" />
         <div className="mb-8 grid grid-cols-2 gap-3 lg:mb-0">
-          <Photo
-            src={estetica2}
-            alt="Maca do consultório de estética com bancada e pia"
-            sizes={HALF_WIDTH}
-            className="aspect-square"
-          />
-          <Photo
-            src={estetica3}
-            alt="Vista ampla do consultório de estética iluminado"
-            sizes={HALF_WIDTH}
-            className="aspect-square"
-          />
+          <Photo gallery="estetica" photos={esteticaPhotos} index={1} sizes={HALF_WIDTH} className="aspect-square" />
+          <Photo gallery="estetica" photos={esteticaPhotos} index={2} sizes={HALF_WIDTH} className="aspect-square" />
         </div>
       </div>
 
@@ -186,14 +198,16 @@ function Multidisciplinar() {
       <div className="mx-auto max-w-xl px-6 py-16 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-16 lg:px-10 lg:py-24">
         <div data-reveal className="lg:order-2">
           <Photo
-            src={multidisciplinar1}
-            alt="Consultório multidisciplinar com mesa, cadeiras e bancada espelhada"
+            gallery="multidisciplinar"
+            photos={multidisciplinarPhotos}
+            index={0}
             sizes={FULL_WIDTH}
             className="mb-3 aspect-[4/5]"
           />
           <Photo
-            src={multidisciplinar2}
-            alt="Mesa de atendimento do consultório multidisciplinar"
+            gallery="multidisciplinar"
+            photos={multidisciplinarPhotos}
+            index={1}
             sizes={FULL_WIDTH}
             className="mb-8 aspect-video lg:mb-0"
           />
@@ -306,11 +320,45 @@ function FloatingWhatsApp() {
   );
 }
 
-function Photo({ src, alt, sizes, className = "" }: { src: StaticImageData; alt: string; sizes: string; className?: string }) {
+function Photo({
+  gallery,
+  photos,
+  index,
+  sizes,
+  className = "",
+}: {
+  gallery: keyof typeof galleries;
+  photos: RoomPhoto[];
+  index: number;
+  sizes: string;
+  className?: string;
+}) {
+  const { src, alt } = photos[index];
+
   return (
-    <div className={`relative overflow-hidden rounded-sm bg-muted ${className}`}>
-      <Image src={src} alt={alt} fill sizes={sizes} placeholder="blur" className="object-cover" />
-    </div>
+    <button
+      type="button"
+      data-gallery={gallery}
+      data-index={index}
+      aria-haspopup="dialog"
+      aria-label={`Ampliar foto: ${alt}`}
+      className={`group relative block w-full cursor-zoom-in overflow-hidden rounded-sm bg-muted ${className}`}
+    >
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes={sizes}
+        placeholder="blur"
+        className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+      />
+      {index === 0 && (
+        <span className="photo-hint absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-full bg-background/85 px-3 py-1.5 text-[10px] uppercase tracking-widest backdrop-blur-sm">
+          <ExpandIcon className="size-3" />
+          {photos.length} fotos
+        </span>
+      )}
+    </button>
   );
 }
 

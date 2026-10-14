@@ -63,9 +63,67 @@ body {
   transform: none;
 }
 
+/* Photo lightbox */
+.photo-hint {
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) {
+  .photo-hint {
+    opacity: 0;
+  }
+  .group:hover .photo-hint,
+  .group:focus-visible .photo-hint {
+    opacity: 1;
+  }
+}
+
+.lightbox-fade {
+  opacity: var(--lightbox-fade, 1);
+  transition: var(--lightbox-fade-transition, none);
+}
+
+.lightbox-track {
+  scrollbar-width: none;
+  touch-action: pan-x pinch-zoom;
+}
+.lightbox-track::-webkit-scrollbar {
+  display: none;
+}
+
+.lightbox-in {
+  animation: lightbox-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(lightbox-photo) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* Only the destination image is drawn, cropped to the morphing box: the photo "uncrops" as it grows. */
+::view-transition-old(lightbox-photo) {
+  display: none;
+}
+::view-transition-new(lightbox-photo) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .lightbox-in {
+    animation: none;
   }
   .js [data-reveal] {
     opacity: 1;
