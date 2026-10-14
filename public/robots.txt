@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://lesignaturehub.com.br
+Sitemap: https://lesignaturehub.com.br/sitemap.xml
