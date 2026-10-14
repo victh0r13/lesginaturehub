@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "eslint",
-    "deploy": "next build && wrangler pages deploy out --project-name lesignaturehub"
+    "deploy": "next build && wrangler deploy"
   },
   "dependencies": {
     "next": "16.4.0",
